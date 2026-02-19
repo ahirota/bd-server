@@ -15,13 +15,6 @@ export function handlerMetrics(req: Request, res: Response) {
 
 export function handlerReset(req: Request, res: Response) {
     cfg.fileserverHits = 0;
-    res.set('Content-Type', 'text/html; charset=utf-8');
-    const content = `<html>
-  <body>
-    <h1>Welcome, Chirpy Admin</h1>
-    <p>Fileserver Hit Count Reset to ${cfg.fileserverHits}</p>
-  </body>
-</html>`
-    res.write(content)
+    res.write(`Fileserver Hit Count Reset to ${cfg.fileserverHits}`);
     res.end();
 }

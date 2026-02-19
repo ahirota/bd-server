@@ -16,7 +16,7 @@ app.use(middlewareLogResponses);
 
 // Admin Endpoints
 app.get("/admin/metrics", handlerMetrics);
-app.get("/admin/reset", handlerReset);
+app.post("/admin/reset", handlerReset);
 
 // API Endpoints
 app.get("/api/healthz", handlerReadiness);
