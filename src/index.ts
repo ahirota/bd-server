@@ -14,10 +14,10 @@ app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 // Global Middleware
 app.use(middlewareLogResponses);
 
-// Routes & Custom Middleware
-app.get("/healthz", handlerReadiness);
-app.get("/metrics", handlerMetrics);
-app.get("/reset", handlerReset);
+// API Endpoints
+app.get("/api/healthz", handlerReadiness);
+app.get("/api/metrics", handlerMetrics);
+app.get("/api/reset", handlerReset);
 
 // App Listener
 app.listen(PORT, () => {
