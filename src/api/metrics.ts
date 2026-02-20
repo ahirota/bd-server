@@ -12,9 +12,3 @@ export function handlerMetrics(req: Request, res: Response) {
     res.write(content)
     res.status(200).end();
 }
-
-export function handlerReset(req: Request, res: Response) {
-    config.api.fileserverHits = 0;
-    res.write(`Fileserver Hit Count Reset to ${config.api.fileserverHits}`);
-    res.end();
-}

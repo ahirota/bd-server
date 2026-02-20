@@ -4,10 +4,12 @@ process.loadEnvFile();
 // API CONFIG
 type APIConfig = {
   fileserverHits: number;
+  platform: string;
 };
 
 const apiConfig: APIConfig = {
-  fileserverHits: 0
+  fileserverHits: 0,
+  platform: envOrThrow("PLATFORM")
 }
 
 // MIGRATION CONFIG
