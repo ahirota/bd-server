@@ -1,10 +1,21 @@
+// Package Imports
 import express from "express";
+import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+
+// App Imports
+import { config } from "./config.js";
 import { handlerReadiness } from "./api/readiness.js";
 import { handlerMetrics, handlerReset } from "./api/metrics.js";
 import { handlerValidateChirp } from "./api/validation.js";
 import { middlewareLogResponses } from "./middleware/logging.js";
 import { middlewareMetricsInc } from "./middleware/metrics.js";
 import { middlewareErrorHandler } from "./middleware/error.js";
+
+// Auto Migration
+const migrationClient = postgres(config.db.url, { max: 1 });
+await migrate(drizzle(migrationClient), config.db.migrationConfig);
 
 // Base Setup
 const app = express();

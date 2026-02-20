@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { cfg } from "../config.js";
+import { config } from "../config.js";
 
 export function handlerMetrics(req: Request, res: Response) {
     res.set('Content-Type', 'text/html; charset=utf-8');
     const content = `<html>
   <body>
     <h1>Welcome, Chirpy Admin</h1>
-    <p>Chirpy has been visited ${cfg.fileserverHits} times!</p>
+    <p>Chirpy has been visited ${config.api.fileserverHits} times!</p>
   </body>
 </html>`
     res.write(content)
@@ -14,7 +14,7 @@ export function handlerMetrics(req: Request, res: Response) {
 }
 
 export function handlerReset(req: Request, res: Response) {
-    cfg.fileserverHits = 0;
-    res.write(`Fileserver Hit Count Reset to ${cfg.fileserverHits}`);
+    config.api.fileserverHits = 0;
+    res.write(`Fileserver Hit Count Reset to ${config.api.fileserverHits}`);
     res.end();
 }
