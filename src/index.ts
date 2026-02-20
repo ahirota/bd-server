@@ -4,6 +4,7 @@ import { handlerMetrics, handlerReset } from "./api/metrics.js";
 import { handlerValidateChirp } from "./api/validation.js";
 import { middlewareLogResponses } from "./middleware/logging.js";
 import { middlewareMetricsInc } from "./middleware/metrics.js";
+import { middlewareErrorHandler } from "./middleware/error.js";
 
 // Base Setup
 const app = express();
@@ -23,6 +24,9 @@ app.post("/admin/reset", handlerReset);
 // API Endpoints
 app.get("/api/healthz", handlerReadiness);
 app.post("/api/validate_chirp", handlerValidateChirp);
+
+// Error Handler
+app.use(middlewareErrorHandler);
 
 // App Listener
 app.listen(PORT, () => {

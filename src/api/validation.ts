@@ -1,41 +1,30 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import { BadRequestError } from "../errors.js";
 
-export async function handlerValidateChirp(req: Request, res: Response) {
+export async function handlerValidateChirp(req: Request, res: Response, next: NextFunction) {
     type parameters = {
         body: string;
     };
 
-    try {
-        const params: parameters = req.body;
-        const maxChirpLength = 140;
-    
-        if (!params) {
-            throw new Error("Invalid JSON, could not parse");
-        }
-        if (!("body" in params)) {
-            throw new Error("Invalid JSON format, body parameter must exist");
-        }
-        if (params.body.length > maxChirpLength) {
-            throw new Error("Chirp is too long");
-        }
+    const params: parameters = req.body;
+    const maxChirpLength = 140;
 
-        const cleaned = cleanBody(params.body);
-        const jsonBody = {
-            "cleanedBody": cleaned
-        };
-
-        sendJsonResponse(res, 200, jsonBody);
-    } catch (error) {
-        let errMessage = `Something unexpected happened: ${error}`;
-        if (error instanceof Error) {
-            errMessage = error.message;
-        }
-        const errorBody = {
-            "error": errMessage
-        };
-
-        sendJsonResponse(res, 400, errorBody);
+    if (!params) {
+        throw new BadRequestError("Invalid JSON, could not parse");
     }
+    if (!("body" in params)) {
+        throw new BadRequestError("Invalid JSON format, body parameter must exist");
+    }
+    if (params.body.length > maxChirpLength) {
+        throw new BadRequestError(`Chirp is too long. Max length is ${maxChirpLength}`);
+    }
+
+    const cleaned = cleanBody(params.body);
+    const jsonBody = {
+        "cleanedBody": cleaned
+    };
+
+    sendJsonResponse(res, 200, jsonBody);
 }
 
 function sendJsonResponse(res: Response, statusCode: number, jsonBody: Object) {
