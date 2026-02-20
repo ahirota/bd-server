@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "../errors.js";
 import { NewChirp } from "../db/schema.js";
-import { createChirp } from "../db/queries/chirps.js";
+import { createChirp, getAllChirps } from "../db/queries/chirps.js";
 
 export async function handlerCreateChirp(req: Request, res: Response, next: NextFunction) {
     type parameters = {
@@ -46,4 +46,14 @@ function cleanBody(bodyText: string): string {
     },[]);
     const cleaned = cleanedArray.join(" ");
     return cleaned;
+}
+
+export async function handlerGetAllChirps(req: Request, res: Response, next: NextFunction) {
+    const chirps = await getAllChirps();
+
+    if (!chirps) {
+        throw new Error("Cound not get chirps");
+    }
+
+    res.status(200).json(chirps);
 }

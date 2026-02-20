@@ -10,7 +10,7 @@ import { handlerReadiness } from "./api/readiness.js";
 import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerCreateUser } from "./api/users.js";
-import { handlerCreateChirp } from "./api/chirps.js";
+import { handlerCreateChirp, handlerGetAllChirps } from "./api/chirps.js";
 import { middlewareLogResponses } from "./middleware/logging.js";
 import { middlewareMetricsInc } from "./middleware/metrics.js";
 import { middlewareErrorHandler } from "./middleware/error.js";
@@ -37,6 +37,7 @@ app.post("/admin/reset", handlerReset);
 // API Endpoints
 app.get("/api/healthz", handlerReadiness);
 app.post("/api/users", handlerCreateUser);
+app.get("/api/chirps", handlerGetAllChirps);
 app.post("/api/chirps", handlerCreateChirp);
 
 // Error Handler
