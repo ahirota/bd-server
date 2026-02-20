@@ -14,6 +14,7 @@ app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 
 // Global Middleware
 app.use(middlewareLogResponses);
+app.use(express.json());
 
 // Admin Endpoints
 app.get("/admin/metrics", handlerMetrics);
