@@ -23,5 +23,9 @@ export async function handlerCreateUser(req: Request, res: Response, next: NextF
 
     const created = await createUser(user);
 
+    if (!created) {
+        throw new Error(`Could not create User`);
+    }
+
     res.status(201).json(created);
 }
