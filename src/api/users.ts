@@ -1,31 +1,71 @@
 import { Request, Response, NextFunction } from "express";
-import { BadRequestError } from "../errors.js";
-import { NewUser } from "../db/schema.js";
-import { createUser } from "../db/queries/users.js";
+import { BadRequestError, NotAuthorizedError, NotFoundError } from "../errors.js";
+import type { NewUser, UserResponse } from "../db/schema.js";
+import { createUser, getUserByEmail } from "../db/queries/users.js";
+import { hashPassword, checkPasswordHash } from "../auth.js";
+
+type UserParameters = {
+    email: string;
+    password: string;
+};
 
 export async function handlerCreateUser(req: Request, res: Response, next: NextFunction) {
-    type parameters = {
-        email: string;
-    };
+    const params = validateUser(req);
 
-    const params: parameters = req.body;
+    const hashedPassword = await hashPassword(params.password);
+
+    const userParams = {
+        email: params.email,
+        hashedPassword: hashedPassword
+    } satisfies NewUser;
+
+    const user = await createUser(userParams);
+
+    if (!user) {
+        throw new Error(`Could not create User`);
+    }
+
+    const safeUser: UserResponse = {
+        id: user.id,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        email: user.email,
+    }
+
+    res.status(201).json(safeUser);
+}
+
+export async function handlerLoginUser(req: Request, res: Response, next: NextFunction) {
+    const params = validateUser(req);
+
+    const user = await getUserByEmail(params.email);
+    
+    if (!user) {
+        throw new NotAuthorizedError(`incorrect email or password`);
+    }
+    if (!await checkPasswordHash(params.password, user.hashedPassword)) {
+        throw new NotAuthorizedError(`incorrect email or password`);
+    }
+
+    const safeUser: UserResponse = {
+        id: user.id,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        email: user.email,
+    }
+
+    res.status(200).json(safeUser);
+}
+
+function validateUser(req: Request): UserParameters {
+    const params: UserParameters = req.body;
 
     if (!params) {
         throw new BadRequestError("Invalid JSON, could not parse");
     }
-    if (!("email" in params)) {
-        throw new BadRequestError("Invalid JSON format, email parameter required for user");
+    if (!params.email && !params.password) {
+        throw new BadRequestError("Invalid JSON format, user requires email and password parameters");
     }
 
-    const user = {
-        email: params.email,
-    } satisfies NewUser;
-
-    const created = await createUser(user);
-
-    if (!created) {
-        throw new Error(`Could not create User`);
-    }
-
-    res.status(201).json(created);
+    return params
 }

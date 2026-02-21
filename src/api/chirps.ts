@@ -3,26 +3,15 @@ import { BadRequestError, NotFoundError } from "../errors.js";
 import { NewChirp } from "../db/schema.js";
 import { createChirp, getAllChirps, getChirpByID } from "../db/queries/chirps.js";
 
+type ChirpParameters = {
+    body: string;
+    userId: string;
+};
+
 export async function handlerCreateChirp(req: Request, res: Response, next: NextFunction) {
-    type parameters = {
-        body: string;
-        userId: string;
-    };
+    const params = validateChirp(req);
 
-    const params: parameters = req.body;
-    const maxChirpLength = 140;
-
-    if (!params) {
-        throw new BadRequestError("Invalid JSON, could not parse");
-    }
-    if (!("body" in params && "userId" in params)) {
-        throw new BadRequestError("Invalid JSON format, Chirp requires userId and body");
-    }
-    if (params.body.length > maxChirpLength) {
-        throw new BadRequestError(`Chirp is too long. Max length is ${maxChirpLength}`);
-    }
-
-    const cleaned = cleanBody(params.body);
+    const cleaned = cleanChirpBody(params.body);
     const chirp = {
         body: cleaned,
         userId: params.userId,
@@ -36,7 +25,25 @@ export async function handlerCreateChirp(req: Request, res: Response, next: Next
     res.status(201).json(created);
 }
 
-function cleanBody(bodyText: string): string {
+function validateChirp(req: Request): ChirpParameters {
+    const params: ChirpParameters = req.body;
+
+    const maxChirpLength = 140;
+
+    if (!params) {
+        throw new BadRequestError("Invalid JSON, could not parse");
+    }
+    if (!params.body && !params.userId) {
+        throw new BadRequestError("Invalid JSON format, Chirp requires userId and body");
+    }
+    if (params.body.length > maxChirpLength) {
+        throw new BadRequestError(`Chirp is too long. Max length is ${maxChirpLength}`);
+    }
+
+    return params
+}
+
+function cleanChirpBody(bodyText: string): string {
     const badWords = ["kerfuffle", "sharbert", "fornax"];
     const toClean = bodyText.split(" ");
     const cleanedArray = toClean.reduce((acc: string[], word: string) => {
