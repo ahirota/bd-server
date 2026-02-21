@@ -2,19 +2,21 @@ import { Request, Response, NextFunction } from "express";
 import { BadRequestError, NotFoundError } from "../errors.js";
 import { NewChirp } from "../db/schema.js";
 import { createChirp, getAllChirps, getChirpByID } from "../db/queries/chirps.js";
+import { getBearerToken, validateJWT } from "../auth.js";
+import { config } from "../config.js";
 
 type ChirpParameters = {
     body: string;
-    userId: string;
 };
 
 export async function handlerCreateChirp(req: Request, res: Response, next: NextFunction) {
     const params = validateChirp(req);
+    const userId = validateJWT(getBearerToken(req), config.api.jwtSecret);
 
     const cleaned = cleanChirpBody(params.body);
     const chirp = {
         body: cleaned,
-        userId: params.userId,
+        userId: userId,
     } satisfies NewChirp;
     const created = await createChirp(chirp);
 
@@ -33,8 +35,8 @@ function validateChirp(req: Request): ChirpParameters {
     if (!params) {
         throw new BadRequestError("Invalid JSON, could not parse");
     }
-    if (!params.body && !params.userId) {
-        throw new BadRequestError("Invalid JSON format, Chirp requires userId and body");
+    if (!params.body) {
+        throw new BadRequestError("Invalid JSON format, Chirp requires body");
     }
     if (params.body.length > maxChirpLength) {
         throw new BadRequestError(`Chirp is too long. Max length is ${maxChirpLength}`);

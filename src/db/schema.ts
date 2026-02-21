@@ -12,7 +12,7 @@ export const users = pgTable("users", {
 });
 
 export type NewUser = typeof users.$inferInsert;
-export type UserResponse = Omit<NewUser, "hashedPassword">
+export type UserResponse = Omit<NewUser, "hashedPassword"> | {token?: string}
 
 export const chirps = pgTable("chirps", {
   id: uuid("id").primaryKey().defaultRandom(),

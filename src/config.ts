@@ -5,11 +5,13 @@ process.loadEnvFile();
 type APIConfig = {
   fileserverHits: number;
   platform: string;
+  jwtSecret: string;
 };
 
 const apiConfig: APIConfig = {
   fileserverHits: 0,
-  platform: envOrThrow("PLATFORM")
+  platform: envOrThrow("PLATFORM"),
+  jwtSecret: envOrThrow("JWT_SECRET")
 }
 
 // MIGRATION CONFIG

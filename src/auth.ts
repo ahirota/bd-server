@@ -1,7 +1,8 @@
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
-import { NotAuthorizedError } from "./errors";
+import { NotAuthorizedError } from "./errors.js";
+import { Request } from "express";
 
 export async function hashPassword(password: string): Promise<string> {
     return await argon2.hash(password);
@@ -52,4 +53,19 @@ export function validateJWT(tokenString: string, secret: string): string {
         throw new NotAuthorizedError(`No user ID in token`);
     }
     return decoded.sub;
+}
+
+export function getBearerToken(req: Request): string {
+    const auth = req.get('Authorization');
+    if (!auth) {
+        throw new NotAuthorizedError(`Missing authorization`);
+    }
+    if (!auth.includes('Bearer')) {
+        throw new NotAuthorizedError(`Authorization Bearer not found.`);
+    }
+    const split = auth.split(" ");
+    if (split.length < 2) {
+        throw new NotAuthorizedError(`Authorization Token not found.`);
+    }
+    return split[1];
 }
