@@ -14,6 +14,7 @@ import { handlerCreateChirp, handlerGetAllChirps, handlerGetChirpByID } from "./
 import { middlewareLogResponses } from "./middleware/logging.js";
 import { middlewareMetricsInc } from "./middleware/metrics.js";
 import { middlewareErrorHandler } from "./middleware/error.js";
+import { handlerRefreshAccessToken, handlerRevokeRefreshToken } from "./api/refreshTokens.js";
 
 // Auto Migration
 const migrationClient = postgres(config.db.url, { max: 1 });
@@ -39,6 +40,8 @@ app.get("/api/healthz", handlerReadiness);
 
 app.post("/api/users", handlerCreateUser);
 app.post("/api/login", handlerLoginUser);
+app.post("/api/refresh", handlerRefreshAccessToken);
+app.post("/api/revoke", handlerRevokeRefreshToken);
 
 app.get("/api/chirps", handlerGetAllChirps);
 app.get("/api/chirps/:chirpId", handlerGetChirpByID);

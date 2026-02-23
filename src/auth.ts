@@ -3,7 +3,9 @@ import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
 import { NotAuthorizedError } from "./errors.js";
 import { Request } from "express";
+import * as crypto from "node:crypto";
 
+// PASSWORD
 export async function hashPassword(password: string): Promise<string> {
     return await argon2.hash(password);
 }
@@ -17,6 +19,7 @@ export async function checkPasswordHash(password: string, hash: string): Promise
     }
 }
 
+// JWT
 type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
 const ISSUER = "chirpy";
@@ -68,4 +71,9 @@ export function getBearerToken(req: Request): string {
         throw new NotAuthorizedError(`Authorization Token not found.`);
     }
     return split[1];
+}
+
+// REFRESH TOKEN
+export function makeRefreshToken(): string {
+    return crypto.randomBytes(32).toString('hex');
 }

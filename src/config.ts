@@ -6,12 +6,14 @@ type APIConfig = {
   fileserverHits: number;
   platform: string;
   jwtSecret: string;
+  jwtExp: number;
 };
 
 const apiConfig: APIConfig = {
   fileserverHits: 0,
   platform: envOrThrow("PLATFORM"),
-  jwtSecret: envOrThrow("JWT_SECRET")
+  jwtSecret: envOrThrow("JWT_SECRET"),
+  jwtExp: 3600
 }
 
 // MIGRATION CONFIG

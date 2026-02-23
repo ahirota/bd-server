@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { BadRequestError, NotAuthorizedError, NotFoundError } from "../errors.js";
-import type { NewUser, UserResponse } from "../db/schema.js";
+import { BadRequestError, NotAuthorizedError } from "../errors.js";
+import type { NewUser, UserResponse, RefreshToken } from "../db/schema.js";
 import { createUser, getUserByEmail } from "../db/queries/users.js";
-import { hashPassword, checkPasswordHash, makeJWT } from "../auth.js";
+import { hashPassword, checkPasswordHash, makeJWT, makeRefreshToken } from "../auth.js";
 import { config } from "../config.js";
+import { createRefreshToken } from "../db/queries/refreshTokens.js";
 
 type UserParameters = {
     email: string;
     password: string;
-    expiresInSeconds?: number;
 };
 
 export async function handlerCreateUser(req: Request, res: Response, next: NextFunction) {
@@ -49,16 +49,26 @@ export async function handlerLoginUser(req: Request, res: Response, next: NextFu
         throw new NotAuthorizedError(`incorrect email or password`);
     }
 
-    const expiration = (params.expiresInSeconds && params.expiresInSeconds < 3600) ? params.expiresInSeconds : 3600
+    const token = makeJWT(user.id, config.api.jwtExp, config.api.jwtSecret);
+    let refreshToken = user.refreshToken;
 
-    const token = makeJWT(user.id, expiration, config.api.jwtSecret);
+    if (!refreshToken) {
+        const refreshTokenParams = {
+            token: makeRefreshToken(),
+            userId: user.id,
+            expiresAt: futureDateExpiration(60)
+        } satisfies RefreshToken;
+        const newToken = await createRefreshToken(refreshTokenParams);
+        refreshToken = newToken.token;
+    }
 
     const safeUser: UserResponse = {
         id: user.id,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         email: user.email,
-        token: token
+        token: token,
+        refreshToken: refreshToken
     }
 
     res.status(200).json(safeUser);
@@ -74,5 +84,11 @@ function validateUser(req: Request): UserParameters {
         throw new BadRequestError("Invalid JSON format, user requires email and password parameters");
     }
 
-    return params
+    return params;
+}
+
+function futureDateExpiration(days: number) {
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + days);
+    return futureDate;
 }

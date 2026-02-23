@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { db } from "../index.js";
-import { type NewUser, users } from "../schema.js";
+import { type NewUser, users, refreshTokens } from "../schema.js";
 
 // CREATE
 export async function createUser(user: NewUser) {
@@ -15,9 +15,33 @@ export async function createUser(user: NewUser) {
 // READ
 export async function getUserByEmail(email: string) {
     const [result] = await db
-        .select()
+        .select({
+            id: users.id,
+            createdAt: users.createdAt,
+            updatedAt: users.updatedAt,
+            hashedPassword: users.hashedPassword,
+            email: users.email,
+            refreshToken: refreshTokens.token
+        })
         .from(users)
-        .where(eq(users.email, email))
+        .where(and(eq(users.email, email), isNull(refreshTokens.revokedAt)))
+        .leftJoin(refreshTokens, eq(users.id, refreshTokens.userId))
+    return result;
+}
+
+export async function getUserFromRefreshToken(refreshToken: string) {
+    const [result] = await db
+        .select({
+            id: users.id,
+            createdAt: users.createdAt,
+            updatedAt: users.updatedAt,
+            hashedPassword: users.hashedPassword,
+            email: users.email,
+            refreshToken: refreshTokens.token
+        })
+        .from(refreshTokens)
+        .where(and(eq(refreshTokens.token, refreshToken)))
+        .innerJoin(users, eq(users.id, refreshTokens.userId))
     return result;
 }
 

@@ -12,7 +12,7 @@ export const users = pgTable("users", {
 });
 
 export type NewUser = typeof users.$inferInsert;
-export type UserResponse = Omit<NewUser, "hashedPassword"> | {token?: string}
+export type UserResponse = Omit<NewUser, "hashedPassword"> | {token?: string, refreshToken?: string}
 
 export const chirps = pgTable("chirps", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -26,3 +26,17 @@ export const chirps = pgTable("chirps", {
 });
 
 export type NewChirp = typeof chirps.$inferInsert;
+
+export const refreshTokens = pgTable("refresh_tokens", {
+  token: varchar("token", { length: 256 }).primaryKey(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  revokedAt: timestamp("revoked_at")
+});
+
+export type RefreshToken = typeof refreshTokens.$inferInsert;
