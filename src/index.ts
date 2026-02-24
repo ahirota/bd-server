@@ -10,7 +10,7 @@ import { handlerReadiness } from "./api/readiness.js";
 import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerCreateUser, handlerLoginUser, handlerUpdateUser } from "./api/users.js";
-import { handlerCreateChirp, handlerGetAllChirps, handlerGetChirpByID } from "./api/chirps.js";
+import { handlerCreateChirp, handlerDeleteChirpByID, handlerGetAllChirps, handlerGetChirpByID } from "./api/chirps.js";
 import { middlewareLogResponses } from "./middleware/logging.js";
 import { middlewareMetricsInc } from "./middleware/metrics.js";
 import { middlewareErrorHandler } from "./middleware/error.js";
@@ -47,6 +47,7 @@ app.post("/api/revoke", handlerRevokeRefreshToken);
 app.get("/api/chirps", handlerGetAllChirps);
 app.get("/api/chirps/:chirpId", handlerGetChirpByID);
 app.post("/api/chirps", handlerCreateChirp);
+app.delete("/api/chirps/:chirpId", handlerDeleteChirpByID);
 
 // Error Handler
 app.use(middlewareErrorHandler);
