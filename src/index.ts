@@ -15,6 +15,7 @@ import { middlewareLogResponses } from "./middleware/logging.js";
 import { middlewareMetricsInc } from "./middleware/metrics.js";
 import { middlewareErrorHandler } from "./middleware/error.js";
 import { handlerRefreshAccessToken, handlerRevokeRefreshToken } from "./api/refreshTokens.js";
+import { webhookUpgradeUser } from "./api/polka/webhooks.js";
 
 // Auto Migration
 const migrationClient = postgres(config.db.url, { max: 1 });
@@ -48,6 +49,8 @@ app.get("/api/chirps", handlerGetAllChirps);
 app.get("/api/chirps/:chirpId", handlerGetChirpByID);
 app.post("/api/chirps", handlerCreateChirp);
 app.delete("/api/chirps/:chirpId", handlerDeleteChirpByID);
+
+app.post("/api/polka/webhooks", webhookUpgradeUser);
 
 // Error Handler
 app.use(middlewareErrorHandler);

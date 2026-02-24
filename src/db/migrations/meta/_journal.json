@@ -29,6 +29,20 @@
       "when": 1771889196388,
       "tag": "0003_fearless_zeigeist",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1771897065756,
+      "tag": "0004_remarkable_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771897457600,
+      "tag": "0005_glorious_the_leader",
+      "breakpoints": true
     }
   ]
 }

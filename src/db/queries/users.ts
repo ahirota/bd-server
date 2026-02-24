@@ -13,6 +13,14 @@ export async function createUser(user: NewUser) {
 }
 
 // READ
+export async function getUserByID(id: string) {
+    const [result] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+    return result;
+}
+
 export async function getUserByEmail(email: string) {
     const [result] = await db
         .select({
@@ -21,6 +29,7 @@ export async function getUserByEmail(email: string) {
             updatedAt: users.updatedAt,
             hashedPassword: users.hashedPassword,
             email: users.email,
+            isChirpyRed: users.isChirpyRed,
             refreshToken: refreshTokens.token
         })
         .from(users)
@@ -37,6 +46,7 @@ export async function getUserFromRefreshToken(refreshToken: string) {
             updatedAt: users.updatedAt,
             hashedPassword: users.hashedPassword,
             email: users.email,
+            isChirpyRed: users.isChirpyRed,
             refreshToken: refreshTokens.token
         })
         .from(refreshTokens)
@@ -50,6 +60,15 @@ export async function updateUserEmailAndPassword(id: string, parameters: NewUser
     const [result] = await db
         .update(users)
         .set(parameters)
+        .where(eq(users.id, id))
+        .returning();
+    return result;
+}
+
+export async function updateUserToChirpyRedByID(id: string) {
+    const [result] = await db
+        .update(users)
+        .set({isChirpyRed: true})
         .where(eq(users.id, id))
         .returning();
     return result;

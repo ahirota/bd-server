@@ -32,6 +32,7 @@ export async function handlerCreateUser(req: Request, res: Response, next: NextF
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         email: user.email,
+        isChirpyRed: user.isChirpyRed,
     }
 
     res.status(201).json(safeUser);
@@ -67,6 +68,7 @@ export async function handlerLoginUser(req: Request, res: Response, next: NextFu
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         email: user.email,
+        isChirpyRed: user.isChirpyRed,
         token: token,
         refreshToken: refreshToken
     }
@@ -94,6 +96,7 @@ export async function handlerUpdateUser(req: Request, res: Response, next: NextF
         createdAt: updatedUser.createdAt,
         updatedAt: updatedUser.updatedAt,
         email: updatedUser.email,
+        isChirpyRed: updatedUser.isChirpyRed,
     }
 
     res.status(200).json(safeUser);
