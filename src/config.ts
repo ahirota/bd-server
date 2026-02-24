@@ -7,13 +7,15 @@ type APIConfig = {
   platform: string;
   jwtSecret: string;
   jwtExp: number;
+  polkaApiKey: string;
 };
 
 const apiConfig: APIConfig = {
   fileserverHits: 0,
   platform: envOrThrow("PLATFORM"),
   jwtSecret: envOrThrow("JWT_SECRET"),
-  jwtExp: 3600
+  jwtExp: 3600,
+  polkaApiKey: envOrThrow("POLKA_KEY")
 }
 
 // MIGRATION CONFIG

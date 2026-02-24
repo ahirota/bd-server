@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError, NotAuthorizedError, NotFoundError } from "../../errors.js";
-import type { NewUser, UserResponse, RefreshToken } from "../../db/schema.js";
-import { createUser, getUserByEmail, getUserByID, updateUserEmailAndPassword, updateUserToChirpyRedByID } from "../../db/queries/users.js";
-import { hashPassword, checkPasswordHash, makeJWT, makeRefreshToken, getBearerToken, validateJWT } from "../../auth.js";
+import { getUserByID, updateUserToChirpyRedByID } from "../../db/queries/users.js";
+import { getAPIKey } from "../../auth.js";
 import { config } from "../../config.js";
-import { createRefreshToken } from "../../db/queries/refreshTokens.js";
 
 type WebhookEvent = {
     event: string,
@@ -14,6 +12,12 @@ type WebhookEvent = {
 }
 
 export async function webhookUpgradeUser(req: Request, res: Response, next: NextFunction) {
+    const apiKey = getAPIKey(req);
+
+    if (apiKey !== config.api.polkaApiKey) {
+        throw new NotAuthorizedError(`Invalid API Key`);
+    }
+
     const params = validateEvent(req);
 
     if (params.event !== "user.upgraded") {

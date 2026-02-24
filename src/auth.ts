@@ -77,3 +77,19 @@ export function getBearerToken(req: Request): string {
 export function makeRefreshToken(): string {
     return crypto.randomBytes(32).toString('hex');
 }
+
+// POLKA API KEY
+export function getAPIKey(req: Request): string {
+    const auth = req.get('Authorization');
+    if (!auth) {
+        throw new NotAuthorizedError(`Missing authorization`);
+    }
+    if (!auth.includes('ApiKey')) {
+        throw new NotAuthorizedError(`Authorization ApiKey not found.`);
+    }
+    const split = auth.split(" ");
+    if (split.length < 2) {
+        throw new NotAuthorizedError(`ApiKey not found.`);
+    }
+    return split[1];
+}
