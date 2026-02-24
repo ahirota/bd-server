@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../errors.js";
 import { NewChirp } from "../db/schema.js";
-import { createChirp, deleteChirpByID, getAllChirpsWithOptionalAuthorID, getChirpByID } from "../db/queries/chirps.js";
+import { createChirp, deleteChirpByID, getAllChirpsWithOptionalParameters, getChirpByID } from "../db/queries/chirps.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
 
@@ -64,7 +64,13 @@ export async function handlerGetMultipleChirps(req: Request, res: Response, next
         authorId = authorIdQuery;
     }
 
-    const chirps = await getAllChirpsWithOptionalAuthorID(authorId);
+    let sort = "";
+    let sortMethod = req.query.sort;
+    if (typeof sortMethod === "string" && ["asc", "desc"].includes(sortMethod)) {
+        sort = sortMethod;
+    }
+
+    const chirps = await getAllChirpsWithOptionalParameters(...[authorId, sort]);
 
     if (!chirps) {
         throw new NotFoundError("Cound not retrive chirps");
