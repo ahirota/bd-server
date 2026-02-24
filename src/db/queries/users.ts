@@ -45,6 +45,16 @@ export async function getUserFromRefreshToken(refreshToken: string) {
     return result;
 }
 
+// UPDATE
+export async function updateUserEmailAndPassword(id: string, parameters: NewUser) {
+    const [result] = await db
+        .update(users)
+        .set(parameters)
+        .where(eq(users.id, id))
+        .returning();
+    return result;
+}
+
 // DELETE
 export async function deleteUsers() {
     const result = await db

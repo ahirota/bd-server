@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError, NotAuthorizedError } from "../errors.js";
 import type { NewUser, UserResponse, RefreshToken } from "../db/schema.js";
-import { createUser, getUserByEmail } from "../db/queries/users.js";
-import { hashPassword, checkPasswordHash, makeJWT, makeRefreshToken } from "../auth.js";
+import { createUser, getUserByEmail, updateUserEmailAndPassword } from "../db/queries/users.js";
+import { hashPassword, checkPasswordHash, makeJWT, makeRefreshToken, getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
 import { createRefreshToken } from "../db/queries/refreshTokens.js";
 
@@ -69,6 +69,31 @@ export async function handlerLoginUser(req: Request, res: Response, next: NextFu
         email: user.email,
         token: token,
         refreshToken: refreshToken
+    }
+
+    res.status(200).json(safeUser);
+}
+
+export async function handlerUpdateUser(req: Request, res: Response, next: NextFunction) {
+    const bearerToken = getBearerToken(req);
+    const currentUserID = validateJWT(bearerToken, config.api.jwtSecret);
+    
+    const params = validateUser(req);
+
+    const hashedPassword = await hashPassword(params.password);
+
+    const updatedUserParams = {
+        email: params.email,
+        hashedPassword: hashedPassword
+    } satisfies NewUser;
+
+    const updatedUser = await updateUserEmailAndPassword(currentUserID, updatedUserParams);
+    
+    const safeUser: UserResponse = {
+        id: updatedUser.id,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+        email: updatedUser.email,
     }
 
     res.status(200).json(safeUser);
